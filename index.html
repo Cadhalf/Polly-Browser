@@ -1,79 +1,108 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Basic Web Browser</title>
+  <title>Secure Browser</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Courier New', Courier, monospace;
       margin: 0;
       padding: 0;
       display: flex;
-      flex-direction: column;
       height: 100vh;
+      background: radial-gradient(circle, #2c3e50, #1c2833);
+      color: #ecf0f1;
     }
 
-    #browser {
+    #controls {
+      width: 200px;
+      background: linear-gradient(180deg, #8e44ad, #3498db);
       display: flex;
-      align-items: center;
-      padding: 10px;
-      background-color: #f0f0f0;
-      border-bottom: 1px solid #ccc;
+      flex-direction: column;
+      padding: 15px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+      border-right: 2px solid #2ecc71;
     }
 
     #url {
-      flex: 1;
-      padding: 8px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
+      margin-bottom: 10px;
+      padding: 10px;
+      border: 2px solid #16a085;
+      border-radius: 8px;
       outline: none;
+      font-size: 16px;
+      color: #1c2833;
+    }
+
+    #url::placeholder {
+      color: #95a5a6;
     }
 
     #go {
-      padding: 8px 12px;
-      margin-left: 10px;
-      background-color: #007bff;
+      padding: 10px 20px;
+      background: #e74c3c;
       color: white;
       border: none;
-      border-radius: 4px;
+      border-radius: 8px;
       cursor: pointer;
       outline: none;
+      font-size: 16px;
+      transition: transform 0.2s, background 0.3s;
     }
 
     #go:hover {
-      background-color: #0056b3;
+      background: #c0392b;
+      transform: scale(1.1);
     }
 
     #frame {
       flex: 1;
       border: none;
+      margin: 10px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+      border-radius: 15px;
+      overflow: hidden;
+    }
+
+    #main {
+      display: flex;
+      flex: 1;
     }
   </style>
 </head>
 <body>
 
-<div id="browser">
-  <input type="text" id="url" placeholder="Enter URL here..." />
-  <button id="go">Go</button>
+<div id="main">
+  <div id="controls">
+    <input type="text" id="url" placeholder="Search or enter a URL..." />
+    <button id="go">Go</button>
+  </div>
+  <iframe id="frame" sandbox="allow-scripts allow-same-origin"></iframe>
 </div>
-
-<iframe id="frame" src="" sandbox="allow-scripts allow-same-origin"></iframe>
 
 <script>
   const urlInput = document.getElementById('url');
   const goButton = document.getElementById('go');
   const frame = document.getElementById('frame');
 
+  function sanitizeUrl(url) {
+    if (!url) return ''; 
+    // Ensure URL is HTTPS and prepend it if missing
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+      url = `https://${url}`;
+    }
+    return url;
+  }
+
   function loadPage() {
-    const url = urlInput.value.trim();
-    if (!url) return;
+    const inputUrl = urlInput.value.trim();
+    if (!inputUrl) return;
 
-    // Ensure the URL starts with http:// or https://
-    const validUrl = url.startsWith('http://') || url.startsWith('https://')
-      ? url
-      : `https://${url}`;
+    const searchEngine = 'https://duckduckgo.com/?q='; // Privacy-friendly search engine
+    const sanitizedUrl = inputUrl.includes('.') ? sanitizeUrl(inputUrl) : `${searchEngine}${encodeURIComponent(inputUrl)}`;
 
-    frame.src = validUrl;
+    frame.src = sanitizedUrl;
   }
 
   goButton.addEventListener('click', loadPage);
