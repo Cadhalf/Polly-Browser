@@ -6,23 +6,26 @@
   <title>Polly Browser</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       margin: 0;
       padding: 0;
       display: flex;
       flex-direction: column;
       height: 100vh;
-      background: #f4f4f9;
-      color: #2c3e50;
+      background: #2c3e50;
+      color: #ecf0f1;
     }
 
     #search-bar {
       padding: 10px 20px;
-      background: #1abc9c;
+      background: #34495e;
       display: flex;
       align-items: center;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
       color: white;
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
 
     #url {
@@ -32,7 +35,12 @@
       border-radius: 20px;
       outline: none;
       font-size: 16px;
-      color: #2c3e50;
+      color: #34495e;
+      transition: background 0.3s ease-in-out;
+    }
+
+    #url:focus {
+      background: #ecf0f1;
     }
 
     #url::placeholder {
@@ -42,7 +50,7 @@
     #go {
       margin-left: 15px;
       padding: 10px 20px;
-      background: #16a085;
+      background: #1abc9c;
       color: white;
       border: none;
       border-radius: 20px;
@@ -64,30 +72,64 @@
 
     #controls {
       width: 250px;
-      background: #34495e;
+      background: #1abc9c;
       display: flex;
       flex-direction: column;
-      padding: 15px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
       color: white;
     }
 
     .control-button {
       margin-bottom: 15px;
       padding: 10px;
-      background: #2c3e50;
+      background: #16a085;
       color: white;
       border: none;
-      border-radius: 10px;
+      border-radius: 15px;
       cursor: pointer;
       outline: none;
-      font-size: 16px;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       transition: transform 0.2s, background 0.3s;
     }
 
     .control-button:hover {
-      background: #1abc9c;
-      transform: scale(1.05);
+      background: #149174;
+      transform: scale(1.1);
+    }
+
+    .icon {
+      margin-right: 10px;
+    }
+
+    .icon-house {
+      width: 20px;
+      height: 20px;
+      background: white;
+      mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23000"><path d="M12 3L1 12h3v9h6V15h4v6h6v-9h3L12 3z"/></svg>');
+      mask-size: contain;
+      mask-repeat: no-repeat;
+      display: inline-block;
+    }
+
+    .icon-arrow {
+      width: 20px;
+      height: 20px;
+      background: white;
+      mask-size: contain;
+      mask-repeat: no-repeat;
+      display: inline-block;
+    }
+
+    .icon-arrow-back {
+      mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23000"><path d="M20 11H7.83l5.58-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>');
+    }
+
+    .icon-arrow-forward {
+      mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23000"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8-8-8z"/></svg>');
     }
   </style>
 </head>
@@ -100,10 +142,19 @@
 
 <div id="main">
   <div id="controls">
-    <button class="control-button" id="back">Back</button>
-    <button class="control-button" id="forward">Forward</button>
+    <button class="control-button" id="back">
+      <span class="icon icon-arrow icon-arrow-back"></span>
+      Back
+    </button>
+    <button class="control-button" id="forward">
+      <span class="icon icon-arrow icon-arrow-forward"></span>
+      Forward
+    </button>
     <button class="control-button" id="reload">Reload</button>
-    <button class="control-button" id="home">Home</button>
+    <button class="control-button" id="home">
+      <span class="icon icon-house"></span>
+      Home
+    </button>
   </div>
 </div>
 
@@ -114,9 +165,6 @@
   const forwardButton = document.getElementById('forward');
   const reloadButton = document.getElementById('reload');
   const homeButton = document.getElementById('home');
-
-  const historyStack = [];
-  let currentIndex = -1;
 
   function sanitizeUrl(url) {
     if (!url) return '';
@@ -133,12 +181,6 @@
     const sanitizedUrl = url.includes('.') ? sanitizeUrl(url) : `${searchEngine}${encodeURIComponent(url)}`;
 
     window.location.href = sanitizedUrl;
-
-    if (currentIndex < historyStack.length - 1) {
-      historyStack.splice(currentIndex + 1);
-    }
-    historyStack.push(sanitizedUrl);
-    currentIndex = historyStack.length - 1;
   }
 
   goButton.addEventListener('click', () => loadPage(urlInput.value.trim()));
@@ -149,17 +191,11 @@
   });
 
   backButton.addEventListener('click', () => {
-    if (currentIndex > 0) {
-      currentIndex--;
-      window.history.back();
-    }
+    window.history.back();
   });
 
   forwardButton.addEventListener('click', () => {
-    if (currentIndex < historyStack.length - 1) {
-      currentIndex++;
-      window.history.forward();
-    }
+    window.history.forward();
   });
 
   reloadButton.addEventListener('click', () => {
