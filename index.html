@@ -1,49 +1,51 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Secure Browser</title>
+  <title>Polly Browser</title>
   <style>
     body {
-      font-family: 'Courier New', Courier, monospace;
+      font-family: Arial, sans-serif;
       margin: 0;
       padding: 0;
       display: flex;
       flex-direction: column;
       height: 100vh;
-      background: radial-gradient(circle, #2c3e50, #1c2833);
-      color: #ecf0f1;
+      background: #f4f4f9;
+      color: #2c3e50;
     }
 
     #search-bar {
-      padding: 15px;
-      background: linear-gradient(90deg, #8e44ad, #3498db);
+      padding: 10px 20px;
+      background: #1abc9c;
       display: flex;
       align-items: center;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      color: white;
     }
 
     #url {
       flex: 1;
       padding: 10px;
-      border: 2px solid #16a085;
-      border-radius: 8px;
+      border: none;
+      border-radius: 20px;
       outline: none;
       font-size: 16px;
-      color: #1c2833;
+      color: #2c3e50;
     }
 
     #url::placeholder {
-      color: #95a5a6;
+      color: #7f8c8d;
     }
 
     #go {
-      margin-left: 10px;
+      margin-left: 15px;
       padding: 10px 20px;
-      background: #e74c3c;
+      background: #16a085;
       color: white;
       border: none;
-      border-radius: 8px;
+      border-radius: 20px;
       cursor: pointer;
       outline: none;
       font-size: 16px;
@@ -51,8 +53,8 @@
     }
 
     #go:hover {
-      background: #c0392b;
-      transform: scale(1.1);
+      background: #149174;
+      transform: scale(1.05);
     }
 
     #main {
@@ -61,22 +63,22 @@
     }
 
     #controls {
-      width: 200px;
-      background: linear-gradient(180deg, #8e44ad, #3498db);
+      width: 250px;
+      background: #34495e;
       display: flex;
       flex-direction: column;
       padding: 15px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-      border-right: 2px solid #2ecc71;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      color: white;
     }
 
     .control-button {
-      margin-bottom: 10px;
+      margin-bottom: 15px;
       padding: 10px;
-      background: #3498db;
+      background: #2c3e50;
       color: white;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       cursor: pointer;
       outline: none;
       font-size: 16px;
@@ -84,17 +86,8 @@
     }
 
     .control-button:hover {
-      background: #2980b9;
+      background: #1abc9c;
       transform: scale(1.05);
-    }
-
-    #frame {
-      flex: 1;
-      border: none;
-      margin: 10px;
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
-      border-radius: 15px;
-      overflow: hidden;
     }
   </style>
 </head>
@@ -112,13 +105,11 @@
     <button class="control-button" id="reload">Reload</button>
     <button class="control-button" id="home">Home</button>
   </div>
-  <iframe id="frame" sandbox="allow-scripts allow-same-origin"></iframe>
 </div>
 
 <script>
   const urlInput = document.getElementById('url');
   const goButton = document.getElementById('go');
-  const frame = document.getElementById('frame');
   const backButton = document.getElementById('back');
   const forwardButton = document.getElementById('forward');
   const reloadButton = document.getElementById('reload');
@@ -128,8 +119,7 @@
   let currentIndex = -1;
 
   function sanitizeUrl(url) {
-    if (!url) return ''; 
-    // Ensure URL is HTTPS and prepend it if missing
+    if (!url) return '';
     if (!url.startsWith('http://') && !url.startsWith('https://')) {
       url = `https://${url}`;
     }
@@ -139,10 +129,10 @@
   function loadPage(url) {
     if (!url) return;
 
-    const searchEngine = 'https://duckduckgo.com/?q='; // Privacy-friendly search engine
+    const searchEngine = 'https://duckduckgo.com/?q=';
     const sanitizedUrl = url.includes('.') ? sanitizeUrl(url) : `${searchEngine}${encodeURIComponent(url)}`;
 
-    frame.src = sanitizedUrl;
+    window.location.href = sanitizedUrl;
 
     if (currentIndex < historyStack.length - 1) {
       historyStack.splice(currentIndex + 1);
@@ -161,23 +151,23 @@
   backButton.addEventListener('click', () => {
     if (currentIndex > 0) {
       currentIndex--;
-      frame.src = historyStack[currentIndex];
+      window.history.back();
     }
   });
 
   forwardButton.addEventListener('click', () => {
     if (currentIndex < historyStack.length - 1) {
       currentIndex++;
-      frame.src = historyStack[currentIndex];
+      window.history.forward();
     }
   });
 
   reloadButton.addEventListener('click', () => {
-    frame.src = historyStack[currentIndex] || 'about:blank';
+    window.location.reload();
   });
 
   homeButton.addEventListener('click', () => {
-    loadPage('');
+    window.location.href = 'https://duckduckgo.com';
   });
 </script>
 
