@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -10,23 +9,22 @@
       margin: 0;
       padding: 0;
       display: flex;
+      flex-direction: column;
       height: 100vh;
       background: radial-gradient(circle, #2c3e50, #1c2833);
       color: #ecf0f1;
     }
 
-    #controls {
-      width: 200px;
-      background: linear-gradient(180deg, #8e44ad, #3498db);
-      display: flex;
-      flex-direction: column;
+    #search-bar {
       padding: 15px;
+      background: linear-gradient(90deg, #8e44ad, #3498db);
+      display: flex;
+      align-items: center;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-      border-right: 2px solid #2ecc71;
     }
 
     #url {
-      margin-bottom: 10px;
+      flex: 1;
       padding: 10px;
       border: 2px solid #16a085;
       border-radius: 8px;
@@ -40,6 +38,7 @@
     }
 
     #go {
+      margin-left: 10px;
       padding: 10px 20px;
       background: #e74c3c;
       color: white;
@@ -56,6 +55,39 @@
       transform: scale(1.1);
     }
 
+    #main {
+      display: flex;
+      flex: 1;
+    }
+
+    #controls {
+      width: 200px;
+      background: linear-gradient(180deg, #8e44ad, #3498db);
+      display: flex;
+      flex-direction: column;
+      padding: 15px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+      border-right: 2px solid #2ecc71;
+    }
+
+    .control-button {
+      margin-bottom: 10px;
+      padding: 10px;
+      background: #3498db;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      outline: none;
+      font-size: 16px;
+      transition: transform 0.2s, background 0.3s;
+    }
+
+    .control-button:hover {
+      background: #2980b9;
+      transform: scale(1.05);
+    }
+
     #frame {
       flex: 1;
       border: none;
@@ -64,19 +96,21 @@
       border-radius: 15px;
       overflow: hidden;
     }
-
-    #main {
-      display: flex;
-      flex: 1;
-    }
   </style>
 </head>
 <body>
 
+<div id="search-bar">
+  <input type="text" id="url" placeholder="Search or enter a URL..." />
+  <button id="go">Go</button>
+</div>
+
 <div id="main">
   <div id="controls">
-    <input type="text" id="url" placeholder="Search or enter a URL..." />
-    <button id="go">Go</button>
+    <button class="control-button" id="back">Back</button>
+    <button class="control-button" id="forward">Forward</button>
+    <button class="control-button" id="reload">Reload</button>
+    <button class="control-button" id="home">Home</button>
   </div>
   <iframe id="frame" sandbox="allow-scripts allow-same-origin"></iframe>
 </div>
@@ -85,6 +119,13 @@
   const urlInput = document.getElementById('url');
   const goButton = document.getElementById('go');
   const frame = document.getElementById('frame');
+  const backButton = document.getElementById('back');
+  const forwardButton = document.getElementById('forward');
+  const reloadButton = document.getElementById('reload');
+  const homeButton = document.getElementById('home');
+
+  const historyStack = [];
+  let currentIndex = -1;
 
   function sanitizeUrl(url) {
     if (!url) return ''; 
@@ -95,21 +136,48 @@
     return url;
   }
 
-  function loadPage() {
-    const inputUrl = urlInput.value.trim();
-    if (!inputUrl) return;
+  function loadPage(url) {
+    if (!url) return;
 
     const searchEngine = 'https://duckduckgo.com/?q='; // Privacy-friendly search engine
-    const sanitizedUrl = inputUrl.includes('.') ? sanitizeUrl(inputUrl) : `${searchEngine}${encodeURIComponent(inputUrl)}`;
+    const sanitizedUrl = url.includes('.') ? sanitizeUrl(url) : `${searchEngine}${encodeURIComponent(url)}`;
 
     frame.src = sanitizedUrl;
+
+    if (currentIndex < historyStack.length - 1) {
+      historyStack.splice(currentIndex + 1);
+    }
+    historyStack.push(sanitizedUrl);
+    currentIndex = historyStack.length - 1;
   }
 
-  goButton.addEventListener('click', loadPage);
+  goButton.addEventListener('click', () => loadPage(urlInput.value.trim()));
   urlInput.addEventListener('keydown', (event) => {
     if (event.key === 'Enter') {
-      loadPage();
+      loadPage(urlInput.value.trim());
     }
+  });
+
+  backButton.addEventListener('click', () => {
+    if (currentIndex > 0) {
+      currentIndex--;
+      frame.src = historyStack[currentIndex];
+    }
+  });
+
+  forwardButton.addEventListener('click', () => {
+    if (currentIndex < historyStack.length - 1) {
+      currentIndex++;
+      frame.src = historyStack[currentIndex];
+    }
+  });
+
+  reloadButton.addEventListener('click', () => {
+    frame.src = historyStack[currentIndex] || 'about:blank';
+  });
+
+  homeButton.addEventListener('click', () => {
+    loadPage('');
   });
 </script>
 
