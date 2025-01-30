@@ -181,7 +181,8 @@
     if (url.includes('.') && !url.startsWith('http')) {
       url = `https://${url}`;
     } else {
-      url = `https://www.google.com/search?q=${encodeURIComponent(url)}`;
+      // Use SmartPage as the default search engine
+      url = `https://www.smartpage.com/search?q=${encodeURIComponent(url)}`;
     }
     return url;
   }
