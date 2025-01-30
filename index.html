@@ -135,14 +135,15 @@
 
   function sanitizeUrl(url) {
     if (!url) return '';
-    if (!url.startsWith('http://') && !url.startsWith('https://')) {
-      url = `https://${url}`;
+    try {
+        let parsedUrl = new URL(url.includes('.') ? url.startsWith('http') ? url : `https://${url}` : `https://www.google.com/search?q=${encodeURIComponent(url)}`);
+        return parsedUrl.href;
+    } catch (error) {
+        return 'about:blank'; // Prevent navigation to invalid URLs
     }
-    return url;
   }
 
   function loadPage(url) {
-    if (!url) return;
     const sanitizedUrl = sanitizeUrl(url);
     browserView.src = sanitizedUrl;
   }
@@ -155,11 +156,11 @@
   });
 
   backButton.addEventListener('click', () => {
-    browserView.contentWindow.history.back();
+    browserView.contentWindow.location.reload();
   });
 
   forwardButton.addEventListener('click', () => {
-    browserView.contentWindow.history.forward();
+    browserView.contentWindow.location.reload(); 
   });
 
   reloadButton.addEventListener('click', () => {
