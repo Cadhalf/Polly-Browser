@@ -175,17 +175,23 @@
   const searchButton = document.getElementById('search-button');
   const homeButton = document.getElementById('home');
 
-  function sanitizeUrl(url) {
-    if (!url) return '';
-    return url.includes('.') ? `https://${url}` : `https://www.google.com/search?q=${encodeURIComponent(url)}`;
+  function sanitizeUrl(input) {
+    if (!input) return '';
+    let url = input.trim();
+    if (url.includes('.') && !url.startsWith('http')) {
+      url = `https://${url}`;
+    } else {
+      url = `https://www.google.com/search?q=${encodeURIComponent(url)}`;
+    }
+    return url;
   }
 
   function loadPage(url) {
     browserView.src = sanitizeUrl(url);
   }
 
-  goButton.addEventListener('click', () => loadPage(urlInput.value.trim()));
-  searchButton.addEventListener('click', () => loadPage(searchHomeInput.value.trim()));
+  goButton.addEventListener('click', () => loadPage(urlInput.value));
+  searchButton.addEventListener('click', () => loadPage(searchHomeInput.value));
   homeButton.addEventListener('click', () => {
     browserView.src = 'about:blank';
   });
